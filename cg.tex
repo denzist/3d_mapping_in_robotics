@@ -5,6 +5,17 @@
 \usepackage[russian]{babel}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\lstset{breakatwhitespace,
+language=C++,
+columns=fullflexible,
+keepspaces,
+breaklines,
+tabsize=3, 
+showstringspaces=false,
+extendedchars=true}
 \graphicspath{ {images/} }
 
 %\usetheme{AnnArbor}
@@ -109,7 +120,7 @@
   }
   \item 
   {
-    Для решения задач планирования движения роботу необходима аккуратная и легко интерпретируемая 3D карта.
+    Для решения задач навигации мобитльных роботов необходимо представление, с помощью которого можно определить какие объекты на карте являются препятствиями, каие области карты свободны для передвижения, а также определить положение робота на карте.
   }
   \end{itemize}
 \end{frame}
@@ -149,16 +160,16 @@
 
 \begin{frame}{Point Clouds}
 \begin{columns}
-\begin{column}{0.50\textwidth}
+\begin{column}{0.60\textwidth}
   \begin{block}{\textcolor{green}{Достоинства}}
     \begin{itemize}
     \item
     { 
-      Нет никаких ограничений на размеры карты.
+      Естественный формат выходных данных некоторых сенсоров (Kinect, 3D Lidars).
     }
     \item
     {
-      Нет ограничений на тип точек.
+      В отличии от Voxel Grids и других представлений, не дискретизируют пространство.  
     }
     \end{itemize}
   \end{block}
@@ -167,24 +178,61 @@
     \begin{itemize}
     \item
     { 
-      Неограниченное использование памяти.
+      Не подходят для представления больших территорий - занимают много памяти.
     }
     \item
     {
-      Нет явного представления свободных для движения областей карты.
+      Не подходят напрямую для задач планирования движения - нет явного представления свободных и занятых для движения областей.
     }
     \end{itemize}
   \end{block}
 \end{column}
-\begin{column}{0.50\textwidth}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{point_cloud_tree.png}
-    % \caption{Awesome Image}
-    % \label{fig:awesome_image}
-\end{figure}
+\begin{column}{0.40\textwidth}
+  \begin{figure}[h]
+      \centering
+      \includegraphics[width=1.\textwidth]{point_cloud_tree.png}
+  \end{figure}
 \end{column}
 \end{columns}
+\end{frame}
+
+\defverbatim[colored]\lst{%
+\begin{lstlisting}[tabsize=5,basicstyle=\ttfamily]
+
+00204 struct PointXYZRGB
+00205 {
+00206   PCL_ADD_POINT4D;  // This adds the members x,y,z which can also be accessed using the point (which is float[4])
+00207   union
+00208   {
+00209     struct
+00210     {
+00211       float rgb;
+00212     };
+00213     float data_c[4];
+00214   };
+00215   [...]
+00216 } EIGEN_ALIGN16;
+
+\end{lstlisting}
+}
+
+\begin{frame}{Point Clouds Memory Usage}
+
+\textcolor{green}{point\_types.hpp}
+
+\lst
+
+\end{frame}
+
+\begin{frame}{Point Clouds Memory Usage}
+
+С одного скана Kinect получается $640 \times 480$ точек, т.е.:
+
+$640 \times 480 \times 8 \times$ sizeof(float) $= 9830400 B = 9.83MB$
+
+Учитывая, что каждую секунду у нас появляется, предположим 30 сканов, то 
+\textcolor{red}{294.9 MB} !!!
+
 \end{frame}
 
 % Voxel Grids
@@ -235,6 +283,17 @@
 \end{columns}
 \end{frame}
 
+\begin{frame}{Voxel Grids Memory Usage}
+
+Пусть есть некоторая аудитория размерами $5m \times 5m \times 2m$.
+
+Есть Voxel Grid этой аудитории точностью $1cm$.
+
+Тогда $500 \times 500 \times 200 \times 4 =$  \textcolor{red}{0.2 GB}
+
+\end{frame}
+
+
 % Elevation Map
 
 \section{Elevation Map}
@@ -249,14 +308,12 @@
   \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{elev_m_grid.png}
-    % \caption{Awesome Image}
-    % \label{fig:awesome_image}
   \end{figure}
 \end{frame}
 
 \begin{frame}{Elevation Map}
 \begin{columns}
-\begin{column}{0.50\textwidth}
+\begin{column}{0.60\textwidth}
   \begin{block}{\textcolor{green}{Достоинства}}
     \begin{itemize}
     \item
@@ -287,12 +344,10 @@
     \end{itemize}
   \end{block}
 \end{column}
-\begin{column}{0.50\textwidth}
+\begin{column}{0.40\textwidth}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{elev_tree.png}
-    % \caption{Awesome Image}
-    % \label{fig:awesome_image}
 \end{figure}
 \end{column}
 \end{columns}
@@ -305,8 +360,6 @@
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{elev_ex.png}
-    % \caption{Awesome Image}
-    % \label{fig:awesome_image}
 \end{figure}
 
 \end{frame}
@@ -464,13 +517,11 @@
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.65\textwidth]{mls_m.png}
-    % \caption{Awesome Image}
-    % \label{fig:awesome_image}
 \end{figure}
 
 Размер клеток 10см$\times$10см
 
-За 172 скана было нсобрано $45,139,000$ точек, размер территории 299м $\times$ 147м
+За 172 скана было собрано $45,139,000$ точек, размер территории 299м $\times$ 147м
 
 Объем занятой памяти 73.33 MB.
 
@@ -570,41 +621,100 @@
 \end{frame}
 
 
-\subsection{Обновление OctoMap}
+\subsection{Обновление и сокращение OctoMap}
 
 \begin{frame}{Обновление OctoMap}
-  Для обновления карты исользуется следующая формула
-  $$P(m^{cell}| z_{1..t}) = \left(1 + \frac{1- P(m^{cell} | z_{t})}{P(m^{cell} | z_{t})}  \frac{P(m^{cell})}{1 - P(m^{cell})} 
-   \frac{1- P(m^{cell} | z_{1..t-1})} {P(m^{cell} | z_{1..t-1})}\right)^{-1}$$
 
-  Используя обозначение 
-  $$L(m^{cell})= \log{ \frac{P(m^{cell})}{1 - P(m^{cell})} }$$
-  Получаем
-  $$L(m^{cell}| z_{1..t})= L(m^{cell} | z_t) + L(m^{cell} | z_{1..t-1}) - L(m^{cell})$$
+Каждая ячейка - это случайная величиная, которая может принимать 2 значения - свободна или занята. Поэтому для каждой ячейки карты хранится значение вероятности быть занятой. Пусть $P(m) = P(m_1, m_2, ..., m_n)$ - вероятность карты $m$. Будем полагать, что каждая ячейка карты - независимая случайная величина. Тогда
+$$P(m) = \prod_{i} P(m_{i})$$
 
 \end{frame}
 
-\subsection{Обновление OctoMap}
+\begin{frame}{Обновление OctoMap}
 
-\begin{frame}{OctoMap}
-  \begin{itemize}
-  \item
-  {
+Будем считать, что в каждый момент времени $t$ мы знаем положение робота на карте $x_{1:t}$ и наблюдения $z_{1:t}$
+$$P(m | z_{1:t}, x_{1:t}) = \prod_{i} P(m_{i}|z_{1:t}, x_{1:t})$$
+
+\end{frame}
+
+\begin{frame}{Обновление OctoMap}
+ 
+\begin{equation}
+\begin{split}
+P(m_i | z_{1:t}, x_{1:t}) = \frac{P(z_t| m_i, z_{1:t-1}, x_{1:t}) P(m_i| z_{1:t-1}, x_{1:t})}{P(z_t|z_{1:t-1}, x_{1:t})} =\\
+\frac{P(z_t| m_i, x_{t}) P(m_i| z_{1:t-1}, x_{1:t-1})}{P(z_t|z_{1:t-1}, x_{1:t})} =\\
+\frac{P(m_i| z_t, x_t) P(z_t|x_{t}) P(m_i| z_{1:t-1}, x_{1:t-1})}{P(m_i|x_t) P(z_t|z_{1:t-1}, x_{1:t})}
+\end{split}
+\end{equation}
+
+\end{frame}
+
+\begin{frame}{Обновление OctoMap}
+ Проделаем тоже самое для $P(m_i = free| z_{1:t}, x_{1:t}) = P(\bar m_i| z_{1:t}, x_{1:t})$
+\begin{equation}
+\begin{split}
+P(\bar m_i | z_{1:t}, x_{1:t}) = \frac{P(z_t| \bar m_i, z_{1:t-1}, x_{1:t}) P( \bar m_i| z_{1:t-1}, x_{1:t})}{P(z_t|z_{1:t-1}, x_{1:t})} =\\
+\frac{P(z_t| \bar m_i, x_{t}) P( \bar m_i| z_{1:t-1}, x_{1:t-1})}{P(z_t|z_{1:t-1}, x_{1:t})} =\\
+\frac{P( \bar m_i| z_t, x_t) P(z_t|x_{t}) P( \bar m_i| z_{1:t-1}, x_{1:t-1})}{P( \bar m_i|x_t) P(z_t|z_{1:t-1}, x_{1:t})}
+\end{split}
+\end{equation}
+
+\end{frame}
+
+\begin{frame}{Обновление OctoMap}
+Поделив (1) на (2) компоненты $P(z_t|z_{1:t-1}, x_{1:t})$ и $P(z_t|x_{t})$ сократятся
+
+Не забудем, что $P(m_i) = 1 - P(\bar m_i)$
+\begin{equation}
+\begin{split}
+\frac{P(m_i | z_{1:t}, x_{1:t})}{1 - P(m_i | z_{1:t}, x_{1:t})} = 
+\frac{P(m_i | z_t, x_t)}{1- P(m_i | z_t, x_t)}\\
+\frac{P(m_i | z_{1..t-1}, x_{1:t-1})}{1- P(m_i | z_{1..t-1}, x_{1:t-1})}\\
+\frac{1 - P(m_i)}{P(m_{i})}
+\end{split}
+\end{equation}
+
+\end{frame}
+
+
+\begin{frame}{Обновление OctoMap}
+  Для обновления карты исользуется следующая формула
+  $$P(m_{i}| z_{1..t}) = \left(1 + \frac{1- P(m_i | z_{t})}{P(m_{i} | z_{t})}  \frac{P(m_{i})}{1 - P(m_i)} 
+   \frac{1- P(m_i | z_{1..t-1})} {P(m_i | z_{1..t-1})}\right)^{-1}$$
+
+  Используя обозначение 
+  $$L(m_i)= \log{ \frac{P(m_i)}{1 - P(m_i)} }$$
+  Получаем
+  $$L(m_i| z_{1..t})= L(m_i | z_t) + L(m_i | z_{1..t-1}) - L(m_i)$$
+
+\end{frame}
+
+\begin{frame}{Динамическое окружение и сокращение OctoMap}
+
     Ограничие $L(m^{cell}| z_{1..t})$ -- для использования в динамическом окружении и для сокращения дерева
     $$L(m^{cell}| z_{1..t}) = \max( \min(L(m^{cell}| z_{1..t}), l_{max}), l_{min})$$
+    Таким образом
     $$L(m^{cell}| z_{1..t}) \in (l_{min}, l_{max})$$
-  }
-  \item
-  {
+    Когда $L(m^{cell}| z_{1..t})$ достигает нижней или верхней границы занчений, клетка будет считаться стабильной.
+
+\end{frame}
+
+\begin{frame}{Динамическое окружение и сокращение OctoMap}
+
+    Если окружение действительно статично, то при некотором выборе верхней и нижней границы, можно добиться того что через несколько измерений клетка станет стабильной. 
+
+    Поэтому если все листья листья стабильны и свободны (заняты), то целый узел считается свободным (занятым), а листья удаляются.
+    
+\end{frame}
+
+\begin{frame}{Точность OctoMap}
     Можно динамически менять точность карты
     $$L(m^{cell}| z_{1..t}) = \max_{i}{L(m_{i}^{cell}| z_{1..t})}$$
-  }
-  \end{itemize}
+    или
+    $$L(m^{cell}| z_{1..t}) = \frac{1}{8}\sum_{i}{L(m_{i}^{cell}| z_{1..t})}$$
   \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{octomap_multi_res.png}
-    % \caption{Awesome Image}
-    % \label{fig:awesome_image}
   \end{figure}
 \end{frame}
 
