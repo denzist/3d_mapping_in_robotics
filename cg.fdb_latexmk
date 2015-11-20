@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1447942032 "cg.tex" "cg.pdf" "cg" 1447942041
+["pdflatex"] 1448007454 "cg.tex" "cg.pdf" "cg" 1448007457
   "/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii" 1337017135 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/share/texlive/texmf-dist/tex/generic/babel-russian/russianb.ldf" 1367878990 18675 63fcc9407825a54c733ae718bb76018d ""
   "/usr/share/texlive/texmf-dist/tex/generic/babel/babel.def" 1386115319 44590 cbeafe75704649248599c30a21c5b6b4 ""
@@ -148,10 +148,10 @@
   "/usr/share/texmf/tex/latex/pgf/utilities/pgfrcs.sty" 1304191498 325 2bcd023400636339210573e2b3ee298b ""
   "/usr/share/texmf/tex/latex/pgf/utilities/xxcolor.sty" 1304191498 2267 e82edfd18fbf4047c6f20ed9467f27db ""
   "/usr/share/texmf/tex/latex/xcolor/xcolor.sty" 1339578534 55224 a43bab84e0ac5e6efcaf9a98bde73a94 ""
-  "cg.aux" 1447942040 17097 969a880344e88569384ba603f9ecbb89 ""
-  "cg.nav" 1447942040 11489 85d2816183ebd6d093d2f13a57745f62 ""
-  "cg.out" 1447942040 1053 90271bcbfa27e5ff867bba3ce36c04fe ""
-  "cg.tex" 1447942030 23781 def15e832dbbe62bfa8d55c7a33da9e1 ""
+  "cg.aux" 1448007457 17097 969a880344e88569384ba603f9ecbb89 ""
+  "cg.nav" 1448007457 11489 85d2816183ebd6d093d2f13a57745f62 ""
+  "cg.out" 1448007457 1053 90271bcbfa27e5ff867bba3ce36c04fe ""
+  "cg.tex" 1448007453 23862 0ca1040bc813d82850309294673b72fc ""
   "images/elev_ex.png" 1447611456 278699 58347b0a84de0e05e2c1b9e18dbbdff3 ""
   "images/elev_m_grid.png" 1447612094 47183 e8cc2c45c81bf96a4be1a38048df9720 ""
   "images/elev_tree.png" 1447611570 215127 71716a8a3699a6deab72703405204d6e ""
@@ -166,9 +166,9 @@
   "images/octree_tree.png" 1447608143 16867 9c9a477d867a47ddf0d80c29fb8c2ce9 ""
   "images/point_cloud_tree.png" 1447611976 227745 982939b0afcdadaab1caad09c98640a2 ""
   (generated)
+  "cg.nav"
+  "cg.pdf"
+  "cg.log"
   "cg.aux"
   "cg.toc"
   "cg.out"
-  "cg.pdf"
-  "cg.log"
-  "cg.nav"
